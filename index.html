@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Gtransfer : GridFTP transfers made easy!">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Gtransfer</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/fscheiner/gtransfer">View on GitHub</a>
+
+          <h1 id="project_title">Gtransfer</h1>
+          <h2 id="project_tagline">GridFTP transfers made easy!</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/fscheiner/gtransfer/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/fscheiner/gtransfer/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="gtransfer---the-gridftp-data-transfer-script" class="anchor" href="#gtransfer---the-gridftp-data-transfer-script"><span class="octicon octicon-link"></span></a>Gtransfer - The GridFTP data transfer script</h1>
+
+<ul>
+<li><a href="#description">Description</a></li>
+<li>
+<a href="#features">Features</a>
+
+<ul>
+<li><a href="#multi-step-data-transfers">Multi-step data transfers</a></li>
+<li><a href="#optimized-data-transfer-performance">Optimized data transfer performance</a></li>
+<li><a href="#data-transfer-interruption-and-continuation">Data transfer interruption and continuation</a></li>
+<li><a href="#data-transfer-reliability">Data transfer reliability</a></li>
+<li><a href="#bash-completion">Bash completion</a></li>
+<li><a href="#host-aliases">Host aliases</a></li>
+<li><a href="#persistent-identifiers-pids">Persistent identifiers (PIDs)</a></li>
+</ul>
+</li>
+<li><a href="#examples">Examples</a></li>
+<li><a href="#who-is-using-it">Who is using it?</a></li>
+<li><a href="#license">License</a></li>
+</ul><h2>
+<a name="description" class="anchor" href="#description"><span class="octicon octicon-link"></span></a>Description</h2>
+
+<p>Gtransfer is a wrapper script for <a href="https://github.com/fr4nk5ch31n3r/tgftp/">tgftp</a> and provides an advanced command line
+interface for performing GridFTP data transfers. The primary aim of gtransfer is
+to make GridFTP data transfers on the command line as easy as possible for the
+user. Therefore a user only has to provide the source and the destination to
+perform a data transfer:</p>
+
+<pre lang="shell"><code>$ gt -s &lt;SOURCE&gt; -d &lt;DESTINATION&gt;
+</code></pre>
+
+<h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<h3>
+<a name="multi-step-data-transfers" class="anchor" href="#multi-step-data-transfers"><span class="octicon octicon-link"></span></a>Multi-step data transfers</h3>
+
+<p>Gtransfer can transfer files along predefined paths by using transit sites and
+can therefore bridge different network domains.</p>
+
+<p>Example:</p>
+
+<pre lang="shell"><code>$ gt -s host1:/files/* -d host3:/files/
+</code></pre>
+
+<blockquote>
+<p><strong>NOTICE:</strong> This examples uses two <a href="#host-aliases">host aliases</a> - <code>host1:</code> and <code>host3:</code> -
+which can point to ordinary host addresses like
+<code>gsiftp://host1.domain.tld:2811</code>.</p>
+</blockquote>
+
+<p><img src="/share/doc/images/multi-step_transfer.png" alt="multi-step transfer"></p>
+
+<p>The host <code>host1</code> is located in a private network, <code>host3</code> is located in the
+Internet and <code>host2</code> has connections to both networks. To transfer files from
+<code>host1</code> to <code>host3</code> gtransfer copies the files to the transit host <code>host2</code> (first
+step) and afterwards from <code>host2</code> to <code>host3</code> (second step). After the transfer
+has finished temporary files are removed from <code>host2</code>. See <a href="/share/doc/dpath.5.md">dpath(5)</a> for
+details.</p>
+
+<h3>
+<a name="optimized-data-transfer-performance" class="anchor" href="#optimized-data-transfer-performance"><span class="octicon octicon-link"></span></a>Optimized data transfer performance</h3>
+
+<p>Another aim of gtransfer is to allow well-performing data transfers without
+detailed knowledge about the underlying facilities. Therefore gtransfer supports
+usage of pre-optimized data transfer parameters for specific connections. See
+<a href="/share/doc/dparam.5.md">dparam(5)</a> for details. In addition gtransfer can also automatically optimize a
+data transfer depending on the size of the files.</p>
+
+<h3>
+<a name="data-transfer-interruption-and-continuation" class="anchor" href="#data-transfer-interruption-and-continuation"><span class="octicon octicon-link"></span></a>Data transfer interruption and continuation</h3>
+
+<p>Gtransfer supports interruption and continuation of transfers. You can interrupt
+a transfer by hitting <code>CTRL+C</code>. To continue an interrupted transfer simply issue
+the very same command, gtransfer will then continue the transfer where it was
+interrupted. The same procedure also works for a failed transfer.</p>
+
+<h3>
+<a name="data-transfer-reliability" class="anchor" href="#data-transfer-reliability"><span class="octicon octicon-link"></span></a>Data transfer reliability</h3>
+
+<p>Gtransfer supports automatic retries of failed transfer steps. The number of
+retries is configurable. See <a href="/share/doc/gtransfer.1.md">gtransfer(1)</a> for details.</p>
+
+<h3>
+<a name="bash-completion" class="anchor" href="#bash-completion"><span class="octicon octicon-link"></span></a>Bash completion</h3>
+
+<p>Gtransfer makes use of bash completion to ease usage. This supports completion
+of options and URLs. URL completion also expands (remote) paths directly on the
+command line. Just hit the <code>TAB</code> key to see what's possible. For a demo, please
+checkout the <a href="http://shelr.tv/records/4fd1be0096608036e1000001">shelr cast</a> on shelr.tv.</p>
+
+<h3>
+<a name="host-aliases" class="anchor" href="#host-aliases"><span class="octicon octicon-link"></span></a>Host aliases</h3>
+
+<p>Gtransfer can use host aliases as alternatives to host addresses. E.g. a user
+can use <code>myGridFTP:</code> and <code>gsiftp://host1.domain.tld:2811</code> synonymically. See
+<a href="/share/doc/host_aliases.md">host aliases</a> for more details.</p>
+
+<h3>
+<a name="persistent-identifiers-pids" class="anchor" href="#persistent-identifiers-pids"><span class="octicon octicon-link"></span></a>Persistent identifiers (PIDs)</h3>
+
+<p>Gtransfer can use persistent identifiers (PIDs) as used by <a href="http://www.eudat.eu/">EUDAT</a> and provided 
+by <a href="http://www.pidconsortium.eu/">EPIC</a> as source of a data transfer. See <a href="/share/doc/persistent_identifiers.md">persistent identifiers</a> for more
+details.</p>
+
+<h2>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
+
+<p>As said, the primary aim of gtransfer is to make GridFTP data transfers on the
+command line as easy as possible for the user. Therefore the <a href="#description">simple example</a> in
+the description should be already suitable for most users.</p>
+
+<p>You can find more detailed examples in the <a href="https://github.com/fr4nk5ch31n3r/gtransfer/wiki/Gtransfer-explained">gtransfer wiki</a> on GitHub.
+Additional examples will be made available occasionally.</p>
+
+<h2>
+<a name="who-is-using-it" class="anchor" href="#who-is-using-it"><span class="octicon octicon-link"></span></a>Who is using it?</h2>
+
+<p>This is a list of HPC centers in Europe that use gtransfer in production:</p>
+
+<p><a href="http://www.hlrs.de/"><img src="https://raw.github.com/fscheiner/images/master/site_logos/hlrs_logo.png" alt="HLRS logo"></a></p>
+
+<p><a href="http://www.hlrs.de/">Höchstleistungsrechenzentrum Stuttgart (HLRS - Germany)</a></p>
+
+<hr><p><a href="http://www.csc.fi/"><img src="https://raw.github.com/fscheiner/images/master/site_logos/csc_logo_h100.png" alt="CSC logo"></a></p>
+
+<p><a href="http://www.csc.fi/">CSC - IT Center for Science (CSC - Finland)</a></p>
+
+<hr><p><a href="http://www.lrz.de/"><img src="https://raw.github.com/fscheiner/images/master/site_logos/lrz_logo_h100.png" alt="LRZ logo"></a></p>
+
+<p><a href="http://www.lrz.de/">Leibniz-Rechenzentrum (LRZ) der Bayerischen Akademie der Wissenschaften (LRZ - Germany)</a></p>
+
+<hr><p><a href="http://www.ichec.ie/"><img src="https://raw.github.com/fscheiner/images/master/site_logos/ichec_logo.png" alt="ICHEC logo"></a></p>
+
+<p><a href="http://www.ichec.ie/">Irish Centre for High-End Computing (ICHEC - Ireland)</a></p>
+
+<hr><p><a href="http://www.cineca.it/"><img src="https://raw.github.com/fscheiner/images/master/site_logos/cineca_logo.png" alt="CINECA logo"></a></p>
+
+<p><a href="http://www.cineca.it/">Centro di supercalcolo, Consorzio di università (CINECA - Italy)</a></p>
+
+<hr><p><a href="http://www.surfsara.nl/"><img src="https://raw.github.com/fscheiner/images/master/site_logos/surfsara_logo.png" alt="SURFSARA logo"></a></p>
+
+<p><a href="http://www.surfsara.nl/">SURFsara (SURFsara - The Netherlands)</a></p>
+
+<hr><p><a href="http://www.cines.fr/"><img src="https://raw.github.com/fscheiner/images/master/site_logos/cines_logo.png" alt="CINES logo"></a></p>
+
+<p><a href="http://www.cines.fr/">Centre Informatique National de l’Enseignement Supérieur (CINES - France)</a></p>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>(GPLv3)</p>
+
+<p>Copyright (C) 2010, 2011, 2013 Frank Scheiner, HLRS, Universitaet Stuttgart<br>
+Copyright (C) 2011, 2012, 2013 Frank Scheiner</p>
+
+<p>The software is distributed under the terms of the GNU General Public License</p>
+
+<p>This software is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+
+<p>This software is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</p>
+
+<p>You should have received a <a href="/COPYING">copy</a> of the GNU General Public License
+along with this program.  If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Gtransfer maintained by <a href="https://github.com/fscheiner">fscheiner</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
